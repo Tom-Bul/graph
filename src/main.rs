@@ -1,14 +1,16 @@
 extern crate minifb;
 mod constants;
+mod matrix;
 mod point;
 
 use constants::*;
+use matrix::Matrix;
 use minifb::{Key, Window, WindowOptions};
 use point::Point;
 
 fn main() {
     let mut window = Window::new(
-        "graph 0.0.1",
+        "graph",
         WIDTH,
         HEIGHT,
         WindowOptions {
@@ -49,6 +51,10 @@ fn main() {
         DEFAULT_VELOCITY_Z,
         true,
     );
+
+    let matrix = Matrix::new([[1, 2, 1], [0, 3, 4], [3, 1, 4]]);
+
+    println!("matrix {:?}", matrix.det().unwrap_or(0));
 
     while window.is_open() && !window.is_key_down(Key::Escape) {
         buffer = vec![BACKGROUND_COLOR; WIDTH * HEIGHT];
