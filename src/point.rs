@@ -1,4 +1,7 @@
-use crate::constants::{DEPTH, HEIGHT, WIDTH};
+use crate::{
+    constants::{DEPTH, HEIGHT, WIDTH},
+    LINE_COLOR, POINT_COLOR,
+};
 
 pub struct Point {
     position_x: f32,
@@ -89,7 +92,7 @@ impl Point {
             for j in 0..self.size {
                 let px = (self.position_x as usize + i).min(WIDTH - 1);
                 let py = (self.position_y as usize + j).min(HEIGHT - 1);
-                buffer[py * WIDTH + px] = 0x00FF00;
+                buffer[py * WIDTH + px] = POINT_COLOR;
             }
         }
     }
@@ -116,7 +119,7 @@ impl Point {
         for i in start_x..=end_x {
             let px = (i as usize).min(WIDTH - 1);
             let py = ((slope * i as f32 + b) as usize).min(HEIGHT - 1);
-            buffer[py * WIDTH + px] = 0x00FF00;
+            buffer[py * WIDTH + px] = LINE_COLOR;
         }
     }
 

@@ -18,7 +18,7 @@ fn main() {
     )
     .expect("Unable to open Window");
 
-    let mut buffer: Vec<u32> = vec![0; WIDTH * HEIGHT];
+    let mut buffer: Vec<u32> = vec![BACKGROUND_COLOR; WIDTH * HEIGHT];
     let mut point = Point::new(
         WIDTH as f32 / 2.0,
         HEIGHT as f32 / 2.0,
@@ -51,9 +51,7 @@ fn main() {
     );
 
     while window.is_open() && !window.is_key_down(Key::Escape) {
-        for pixel in buffer.iter_mut() {
-            *pixel = 0;
-        }
+        buffer = vec![BACKGROUND_COLOR; WIDTH * HEIGHT];
 
         point.pixel_movement();
         point2.pixel_movement();
