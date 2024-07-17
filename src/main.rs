@@ -1,8 +1,10 @@
 extern crate minifb;
+mod buffer;
 mod constants;
 mod matrix;
 mod point;
 
+use buffer::Buffer;
 use constants::*;
 use matrix::Matrix;
 use minifb::{Key, Window, WindowOptions};
@@ -20,7 +22,10 @@ fn main() {
     )
     .expect("Unable to open Window");
 
-    let mut buffer: Vec<u32> = vec![BACKGROUND_COLOR; WIDTH * HEIGHT];
+    let mut buffer = Buffer::new();
+
+    buffer.buffer_loop();
+
     let mut point = Point::new(
         WIDTH as f32 / 2.0,
         HEIGHT as f32 / 2.0,
@@ -57,7 +62,7 @@ fn main() {
     println!("matrix {:?}", matrix.det().unwrap_or(0));
 
     while window.is_open() && !window.is_key_down(Key::Escape) {
-        buffer = vec![BACKGROUND_COLOR; WIDTH * HEIGHT];
+        buffer.clear();
 
         point.pixel_movement();
         point2.pixel_movement();
@@ -71,6 +76,8 @@ fn main() {
         Point::draw_line(&point, &point3, &mut buffer);
         Point::draw_line(&point2, &point3, &mut buffer);
 
-        window.update_with_buffer(&buffer, WIDTH, HEIGHT).unwrap();
+        window
+            .update_with_buffer(buffer.get_output(), WIDTH, HEIGHT)
+            .unwrap();
     }
 }

@@ -1,4 +1,5 @@
 use crate::{
+    buffer::Buffer,
     constants::{DEPTH, HEIGHT, WIDTH},
     LINE_COLOR, POINT_COLOR,
 };
@@ -87,17 +88,17 @@ impl Point {
         };
     }
 
-    pub fn draw_point(&self, buffer: &mut Vec<u32>) {
+    pub fn draw_point(&self, buffer: &mut Buffer) {
         for i in 0..self.size {
             for j in 0..self.size {
                 let px = (self.position_x as usize + i).min(WIDTH - 1);
                 let py = (self.position_y as usize + j).min(HEIGHT - 1);
-                buffer[py * WIDTH + px] = POINT_COLOR;
+                buffer.update(py * WIDTH + px, POINT_COLOR);
             }
         }
     }
 
-    pub fn draw_line(first_pixel: &Point, second_pixel: &Point, buffer: &mut Vec<u32>) {
+    pub fn draw_line(first_pixel: &Point, second_pixel: &Point, buffer: &mut Buffer) {
         let (x1, y1) = (
             first_pixel.position_x + (first_pixel.size / 2) as f32,
             first_pixel.position_y + (first_pixel.size / 2) as f32,
@@ -119,7 +120,7 @@ impl Point {
         for i in start_x..=end_x {
             let px = (i as usize).min(WIDTH - 1);
             let py = ((slope * i as f32 + b) as usize).min(HEIGHT - 1);
-            buffer[py * WIDTH + px] = LINE_COLOR;
+            buffer.update(py * WIDTH + px, LINE_COLOR);
         }
     }
 
