@@ -1,8 +1,10 @@
+use std::sync::Mutex;
 use crate::{
     buffer::Buffer,
     constants::{HEIGHT, WIDTH},
     DEFAULT_SIZE, LINE_COLOR, POINT_COLOR,
 };
+use rayon::prelude::*;
 
 pub struct StaticPoint {
     pub position_x: f32,
@@ -46,7 +48,7 @@ impl Point {
         }
     }
 
-    pub fn pixel_movement(&mut self) {
+    pub fn point_movement(&mut self) {
         let StaticPoint {
             position_x,
             position_y,
@@ -112,15 +114,18 @@ impl Point {
             position_y,
         } = self.position;
 
-        for i in 0..self.size {
-            for j in 0..self.size {
-                let px =
-                    ((position_x - (DEFAULT_SIZE as f32 / 2.0 - 1.0)) as usize + i).min(WIDTH - 1);
-                let py =
-                    ((position_y - (DEFAULT_SIZE as f32 / 2.0 - 1.0)) as usize + j).min(HEIGHT - 1);
-                buffer.update(py * WIDTH + px, POINT_COLOR);
-            }
-        }
+        let buffer = Mutex::new(buffer);
+
+        let range: Vec<(usize, usize)> = (0..self.size)
+            .flat_map(|i| (0..self.size).map(move |j| (i, j)))
+            .collect();
+
+        range.par_iter().for_each(|&(i, j)| {
+            // Compute the pixel position
+            let px = ((position_x - (DEFAULT_SIZE as f32 / 2.0 - 1.0)) as usize + i).min(WIDTH - 1);
+            let py = ((position_y - (DEFAULT_SIZE as f32 / 2.0 - 1.0)) as usize + j).min(HEIGHT - 1);
+            Buffer::update(&buffer, py * WIDTH + px, POINT_COLOR);
+        });
     }
 
     pub fn draw_line(first_pixel: &Point, second_pixel: &Point, buffer: &mut Buffer) {
@@ -142,11 +147,18 @@ impl Point {
             (x2 as u32, x1 as u32)
         };
 
-        for i in start_x..=end_x {
+        let buffer = Mutex::new(buffer);
+
+        // Create a vector of x values in the range
+        let range: Vec<u32> = (start_x..=end_x).collect();
+
+        // Use par_iter from Rayon to parallelize the loop
+        range.par_iter().for_each(|&i| {
             let px = (i as usize).min(WIDTH - 1);
             let py = ((slope * i as f32 + b) as usize).min(HEIGHT - 1);
-            buffer.update(py * WIDTH + px, LINE_COLOR);
-        }
+
+            Buffer::update(&buffer, py * WIDTH + px, LINE_COLOR);
+        });
     }
 
     // fn resize(&mut self) {

@@ -27,9 +27,9 @@ fn main() {
 
     buffer.buffer_loop();
 
-    let static_point = StaticPoint::new(WIDTH as f32 / 2.0 as f32, HEIGHT as f32 / 2.0 as f32);
-    let static_point2 = StaticPoint::new(WIDTH as f32 / 2.0 as f32, HEIGHT as f32 / 2.0 as f32);
-    let static_point3 = StaticPoint::new(WIDTH as f32 / 2.0 as f32, HEIGHT as f32 / 2.0 as f32);
+    let static_point = StaticPoint::new(WIDTH as f32 / 2.0f32, HEIGHT as f32 / 2.0f32);
+    let static_point2 = StaticPoint::new(WIDTH as f32 / 2.0f32, HEIGHT as f32 / 2.0f32);
+    let static_point3 = StaticPoint::new(WIDTH as f32 / 2.0f32, HEIGHT as f32 / 2.0f32);
 
     let mut point = Point::new(
         static_point,
@@ -56,9 +56,9 @@ fn main() {
     while window.is_open() && !window.is_key_down(Key::Escape) {
         buffer.clear();
 
-        point.pixel_movement();
-        point2.pixel_movement();
-        point3.pixel_movement();
+        point.point_movement();
+        point2.point_movement();
+        point3.point_movement();
 
         point.draw_point(&mut buffer);
         point2.draw_point(&mut buffer);

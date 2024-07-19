@@ -1,3 +1,4 @@
+use std::sync::Mutex;
 use crate::{BACKGROUND_COLOR, HEIGHT, WIDTH};
 
 pub struct Buffer {
@@ -16,15 +17,20 @@ impl Buffer {
         })
     }
 
-    pub fn update(&mut self, index: usize, value: u32) {
-        self.vec[index] = value;
+    pub fn update(buffer: &Mutex<&mut Buffer>, index: usize, value: u32) {
+        let mut buffer = buffer.lock().unwrap();
+        buffer.vec[index] = value;
     }
+
+    // pub fn update(&mut self, index: usize, value: u32) {
+    //     self.vec[index] = value;
+    // }
 
     pub fn clear(&mut self) {
         self.vec = vec![BACKGROUND_COLOR; WIDTH * HEIGHT];
     }
 
-    pub fn get_output(&mut self) -> &[u32] {
-        &self.vec[..]
+    pub fn get_output(&self) -> &[u32] {
+        &self.vec
     }
 }

@@ -1,4 +1,6 @@
+use std::sync::Mutex;
 use crate::{buffer::Buffer, matrix::Matrix, point::Point, WIDTH};
+use rayon::prelude::*;
 
 pub struct Triangle<'a> {
     p1: &'a Point,
@@ -32,8 +34,6 @@ impl<'a> Triangle<'a> {
         .det()
         .unwrap_or(0.0);
 
-        let mut indices_to_update = vec![];
-
         let position_y_collection: Vec<usize> = vec![
             self.p1.position.position_y as usize,
             self.p2.position.position_y as usize,
@@ -52,13 +52,16 @@ impl<'a> Triangle<'a> {
             position_x_collection.iter().min().unwrap(),
         );
 
-        for (index, _) in buffer.vec.iter_mut().enumerate() {
-            let (x, y) = (index % WIDTH, index / WIDTH);
+        let buffer = Mutex::new(buffer);
 
-            if y > *upper_bound_y || y < *lower_bound_y || x > *upper_bound_x || x < *lower_bound_x
-            {
-                continue;
-            }
+        // Create a range of indices to process
+        let indices_to_process: Vec<usize> = (*lower_bound_y..=*upper_bound_y)
+            .flat_map(|y| (*lower_bound_x..=*upper_bound_x).map(move |x| y * WIDTH + x))
+            .collect();
+
+        // Use par_iter from Rayon to parallelize the loop
+        indices_to_process.par_iter().for_each(|&index| {
+            let (x, y) = (index % WIDTH, index / WIDTH);
 
             let matrix_pbc = match Matrix::new([
                 [x as f32, y as f32, 1.0],
@@ -73,10 +76,10 @@ impl<'a> Triangle<'a> {
                     1.0,
                 ],
             ])
-            .det()
+                .det()
             {
                 Some(determinant) if determinant != 0.0 => determinant,
-                _ => continue,
+                _ => return,
             };
             let matrix_apc = match Matrix::new([
                 [
@@ -91,10 +94,10 @@ impl<'a> Triangle<'a> {
                     1.0,
                 ],
             ])
-            .det()
+                .det()
             {
                 Some(determinant) if determinant != 0.0 => determinant,
-                _ => continue,
+                _ => return,
             };
             let matrix_abp = match Matrix::new([
                 [
@@ -109,10 +112,10 @@ impl<'a> Triangle<'a> {
                 ],
                 [x as f32, y as f32, 1.0],
             ])
-            .det()
+                .det()
             {
                 Some(determinant) if determinant != 0.0 => determinant,
-                _ => continue,
+                _ => return,
             };
 
             let (a, b, c) = (
@@ -122,12 +125,9 @@ impl<'a> Triangle<'a> {
             );
 
             if a >= 0.0 && b >= 0.0 && c >= 0.0 && a + b + c != 1.0 {
-                indices_to_update.push(index);
-            }
-        }
 
-        for index in indices_to_update {
-            buffer.update(index, color)
-        }
+                Buffer::update(&buffer, index, color);
+            }
+        });
     }
 }
