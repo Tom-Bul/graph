@@ -25,17 +25,16 @@ fn main() {
 
     let mut buffer = Buffer::new();
 
-    buffer.buffer_loop();
-
-    let static_point = StaticPoint::new(WIDTH as f32 / 2.0f32, HEIGHT as f32 / 2.0f32);
-    let static_point2 = StaticPoint::new(WIDTH as f32 / 2.0f32, HEIGHT as f32 / 2.0f32);
-    let static_point3 = StaticPoint::new(WIDTH as f32 / 2.0f32, HEIGHT as f32 / 2.0f32);
+    let static_point = StaticPoint::new();
+    let static_point2 = StaticPoint::new();
+    let static_point3 = StaticPoint::new();
 
     let mut point = Point::new(
         static_point,
         DEFAULT_SIZE,
         DEFAULT_VELOCITY_X,
         DEFAULT_VELOCITY_Y,
+        DEFAULT_VELOCITY_Z,
         true,
     );
     let mut point2 = Point::new(
@@ -43,6 +42,7 @@ fn main() {
         DEFAULT_SIZE,
         -DEFAULT_VELOCITY_X - 20.0,
         -DEFAULT_VELOCITY_Y - 10.0,
+        -DEFAULT_VELOCITY_Z - 10.0,
         true,
     );
     let mut point3 = Point::new(
@@ -50,6 +50,7 @@ fn main() {
         DEFAULT_SIZE,
         -DEFAULT_VELOCITY_X + 10.0,
         DEFAULT_VELOCITY_Y - 10.0,
+        DEFAULT_VELOCITY_Z + 15.0,
         true,
     );
 
@@ -70,7 +71,7 @@ fn main() {
 
         let triangle = Triangle::new(&point, &point2, &point3);
 
-        triangle.fill(FILL_COLOR, &mut buffer);
+        triangle.fill(&mut buffer);
 
         window
             .update_with_buffer(buffer.get_output(), WIDTH, HEIGHT)

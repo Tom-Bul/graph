@@ -1,33 +1,37 @@
 use std::sync::Mutex;
 use crate::{
     buffer::Buffer,
-    constants::{HEIGHT, WIDTH},
+    constants::{HEIGHT, WIDTH, DEPTH},
     DEFAULT_SIZE, LINE_COLOR, POINT_COLOR,
 };
 use rayon::prelude::*;
 
+
 pub struct StaticPoint {
     pub position_x: f32,
     pub position_y: f32,
+    pub position_z: f32,
 }
 pub struct Point {
     pub position: StaticPoint,
     pub size: usize,
     velocity_x: f32,
     velocity_y: f32,
+    velocity_z: f32,
     bounce: bool,
 }
 
 impl StaticPoint {
-    pub fn new(position_x: f32, position_y: f32) -> Self {
+    pub fn new() -> Self {
         Self {
-            position_x,
-            position_y,
+            position_x: WIDTH as f32 / 2.0f32,
+            position_y: HEIGHT as f32 / 2.0f32,
+            position_z: DEPTH as f32 / 2.0f32,
         }
     }
 
-    pub fn get(&self) -> (f32, f32) {
-        (self.position_x, self.position_y)
+    pub fn get(&self) -> (f32, f32, f32) {
+        (self.position_x, self.position_y, self.position_z)
     }
 }
 
@@ -37,6 +41,7 @@ impl Point {
         size: usize,
         velocity_x: f32,
         velocity_y: f32,
+        velocity_z: f32,
         bounce: bool,
     ) -> Point {
         Point {
@@ -44,6 +49,7 @@ impl Point {
             size,
             velocity_x,
             velocity_y,
+            velocity_z,
             bounce,
         }
     }
@@ -52,10 +58,12 @@ impl Point {
         let StaticPoint {
             position_x,
             position_y,
+            position_z,
         } = &mut self.position;
 
         *position_x += self.velocity_x * (1.0 / 25.0);
         *position_y += self.velocity_y * (1.0 / 25.0);
+        *position_z += self.velocity_z * (1.0 / 25.0);
 
         if self.bounce {
             self.border_bounce()
@@ -63,29 +71,30 @@ impl Point {
             self.border_pass()
         }
 
-        // self.resize();
+        self.resize();
     }
 
     pub fn border_bounce(&mut self) {
         let StaticPoint {
             position_x,
             position_y,
+            position_z,
         } = &mut self.position;
 
-        fn get_expression_x(position_x: f32, size: usize) -> bool {
-            position_x >= (WIDTH - size) as f32 || position_x <= 0.0
+        fn get_expression(position: f32, dimension: usize, size: usize) -> bool {
+            position >= (dimension - size) as f32 || position <= 0.0
         }
 
-        fn get_expression_y(position_y: f32, size: usize) -> bool {
-            position_y >= (HEIGHT - size) as f32 || position_y <= 0.0
-        }
-
-        if get_expression_x(*position_x, self.size) {
+        if get_expression(*position_x, WIDTH, self.size) {
             self.velocity_x = -self.velocity_x;
         }
 
-        if get_expression_y(*position_y, self.size) {
+        if get_expression(*position_y, HEIGHT, self.size) {
             self.velocity_y = -self.velocity_y;
+        }
+
+        if get_expression(*position_z, DEPTH, self.size) {
+            self.velocity_z = -self.velocity_z;
         }
     }
 
@@ -93,6 +102,7 @@ impl Point {
         let StaticPoint {
             position_x,
             position_y,
+            ..
         } = &mut self.position;
 
         if *position_x > WIDTH as f32 {
@@ -112,6 +122,7 @@ impl Point {
         let StaticPoint {
             position_x,
             position_y,
+            ..
         } = self.position;
 
         let buffer = Mutex::new(buffer);
@@ -121,7 +132,6 @@ impl Point {
             .collect();
 
         range.par_iter().for_each(|&(i, j)| {
-            // Compute the pixel position
             let px = ((position_x - (DEFAULT_SIZE as f32 / 2.0 - 1.0)) as usize + i).min(WIDTH - 1);
             let py = ((position_y - (DEFAULT_SIZE as f32 / 2.0 - 1.0)) as usize + j).min(HEIGHT - 1);
             Buffer::update(&buffer, py * WIDTH + px, POINT_COLOR);
@@ -149,10 +159,8 @@ impl Point {
 
         let buffer = Mutex::new(buffer);
 
-        // Create a vector of x values in the range
         let range: Vec<u32> = (start_x..=end_x).collect();
 
-        // Use par_iter from Rayon to parallelize the loop
         range.par_iter().for_each(|&i| {
             let px = (i as usize).min(WIDTH - 1);
             let py = ((slope * i as f32 + b) as usize).min(HEIGHT - 1);
@@ -161,7 +169,7 @@ impl Point {
         });
     }
 
-    // fn resize(&mut self) {
-    //     self.size = (self.position_z / DEPTH * 90.0 + 10.0).round() as usize;
-    // }
+    fn resize(&mut self) {
+        self.size = ((DEPTH as f32 - self.position.position_z) / DEPTH as f32 * 7.0 + 3.0).round() as usize;
+    }
 }
