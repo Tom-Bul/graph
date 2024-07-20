@@ -122,7 +122,7 @@ impl Point {
         let StaticPoint {
             position_x,
             position_y,
-            ..
+            position_z,
         } = self.position;
 
         let buffer = Mutex::new(buffer);
@@ -134,7 +134,7 @@ impl Point {
         range.par_iter().for_each(|&(i, j)| {
             let px = ((position_x - (DEFAULT_SIZE as f32 / 2.0 - 1.0)) as usize + i).min(WIDTH - 1);
             let py = ((position_y - (DEFAULT_SIZE as f32 / 2.0 - 1.0)) as usize + j).min(HEIGHT - 1);
-            Buffer::update(&buffer, py * WIDTH + px, POINT_COLOR);
+            Buffer::update_with_z(&buffer, py * WIDTH + px, POINT_COLOR, position_z);
         });
     }
 
@@ -170,6 +170,6 @@ impl Point {
     }
 
     fn resize(&mut self) {
-        self.size = ((DEPTH as f32 - self.position.position_z) / DEPTH as f32 * 7.0 + 3.0).round() as usize;
+        self.size = ((DEPTH as f32 - self.position.position_z) / DEPTH as f32 * 10.0 + 5.0).round() as usize;
     }
 }

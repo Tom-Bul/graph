@@ -1,7 +1,6 @@
 use std::sync::Mutex;
 use crate::{buffer::Buffer, matrix::Matrix, point::Point, WIDTH};
 use rayon::prelude::*;
-use crate::constants::{FILL_COLOR};
 use crate::point::StaticPoint;
 
 pub struct Triangle<'a> {
@@ -15,7 +14,7 @@ impl<'a> Triangle<'a> {
         Triangle { p1, p2, p3 }
     }
 
-    pub fn fill(&self, buffer: &mut Buffer) {
+    pub fn fill(&self, buffer: &mut Buffer, color: u32) {
         let matrix_abc = Matrix::new([
             [
                 self.p1.position.position_x,
@@ -126,9 +125,9 @@ impl<'a> Triangle<'a> {
                 matrix_abp / matrix_apc,
             );
 
-            if a >= 0.0 && b >= 0.0 && c >= 0.0 && a + b + c != 1.0 {
+            if a >= 0.0 && b >= 0.0 && c >= 0.0 {
 
-                Buffer::update(&buffer, index, get_color(z));
+                Buffer::update_with_z(&buffer, index, get_color(z,color), z as f32);
             }
         });
     }
@@ -149,10 +148,10 @@ pub fn find_z(p1: &StaticPoint, p2: &StaticPoint, p3: &StaticPoint, p: (usize, u
     ( lam_1 * z1 + lam_2 * z2 + lam_3 * z3 ) as usize
 }
 
-pub fn get_color(z: usize) -> u32 {
-    let red = ((FILL_COLOR >> 16) & 0xFF) as f32;
-    let green = ((FILL_COLOR >> 8) & 0xFF) as f32;
-    let blue = (FILL_COLOR & 0xFF) as f32;
+pub fn get_color(z: usize, color: u32) -> u32 {
+    let red = ((color >> 16) & 0xFF) as f32;
+    let green = ((color >> 8) & 0xFF) as f32;
+    let blue = (color & 0xFF) as f32;
 
     let factor = 1.0 - (z as f32 / 300.0);
     let darkened_red = (red * factor).min(255.0).max(0.0) as u32;

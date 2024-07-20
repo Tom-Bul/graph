@@ -10,4 +10,9 @@ pub const DEFAULT_SIZE: usize = 10;
 pub const BACKGROUND_COLOR: u32 = 0x4C5454;
 pub const POINT_COLOR: u32 = 0xFF715B;
 pub const LINE_COLOR: u32 = 0xE9B44C;
-pub const FILL_COLOR: u32 = 0xE9B44C - (DEPTH / 2) as u32;
+pub const FILL_COLOR: u32 = 0x7C3238;
+pub const FILL_COLOR2: u32 = 0xB7245C;
+pub const FILL_COLOR3: u32 = 0xEDCBB1;
+pub const FILL_COLOR4: u32 = 0x929982;
+
+// pub const
