@@ -3,7 +3,7 @@ use std::sync::Mutex;
 use rayon::prelude::*;
 
 use crate::{buffer::Buffer, constants::{DEPTH, HEIGHT, WIDTH}, DEFAULT_SIZE, LINE_COLOR, POINT_COLOR};
-use crate::constants::{FPS, IS_BOUNCE_ENABLED, MAX_VELOCITY, MIN_VELOCITY};
+use crate::constants::{FPS, IS_BOUNCE_ENABLED, MAX_SIZE, MAX_VELOCITY, MIN_SIZE, MIN_VELOCITY};
 use crate::random::get_rand_velocity;
 
 pub struct StaticPoint {
@@ -59,6 +59,21 @@ impl Point {
             bounce: IS_BOUNCE_ENABLED,
         }
     }
+
+    pub fn new_multiple(n: usize) -> Vec<Point> {
+        let mut points: Vec<Point> = vec![];
+        for _ in 0..n {
+            points.push(
+                Point {
+                position: StaticPoint::new(),
+                size: DEFAULT_SIZE,
+                velocity: Velocity::new(),
+                bounce: IS_BOUNCE_ENABLED,
+            })
+        }
+        points
+    }
+
 
     pub fn point_movement(&mut self) {
         let StaticPoint {
@@ -169,6 +184,6 @@ impl Point {
     }
 
     fn resize(&mut self) {
-        self.size = ((DEPTH as f32 - self.position.position_z) / DEPTH as f32 * 10.0 + 5.0).round() as usize;
+        self.size = ((DEPTH as f32 - self.position.position_z) / DEPTH as f32 * (MAX_SIZE - MIN_SIZE) as f32 + MIN_SIZE as f32).round() as usize;
     }
 }

@@ -26,41 +26,34 @@ fn main() {
 
     let mut buffer = Buffer::new();
 
-    let mut point = Point::new();
-    let mut point2 = Point::new();
-    let mut point3 = Point::new();
-    let mut point4 = Point::new();
+    let mut points = Point::new_multiple(POINTS_NUMBER);
+    let points_len = points.len();
+    let indices: Vec<usize> = (0..points.len()).collect();
 
     while window.is_open() && !window.is_key_down(Key::Escape) {
         buffer.clear();
 
-        point.point_movement();
-        point2.point_movement();
-        point3.point_movement();
-        point4.point_movement();
+        indices.iter().for_each(|&index| {
+            let point = &mut points[index];
+            point.point_movement();
+            point.draw_point(&mut buffer);
 
-        point.draw_point(&mut buffer);
-        point2.draw_point(&mut buffer);
-        point3.draw_point(&mut buffer);
-        point4.draw_point(&mut buffer);
+            // for &i in &indices[index + 1..] {
+            //     Point::draw_line(&points[index], &points[i], &mut buffer);
+            // }
+        });
 
-        Point::draw_line(&point, &point2, &mut buffer);
-        Point::draw_line(&point, &point3, &mut buffer);
-        Point::draw_line(&point2, &point3, &mut buffer);
-        Point::draw_line(&point4, &point2, &mut buffer);
-        Point::draw_line(&point4, &point3, &mut buffer);
-        Point::draw_line(&point4, &point, &mut buffer);
+        let mut color_index = 0;
 
-        let triangle = Triangle::new(&point, &point2, &point3);
-        let triangle2 = Triangle::new(&point2, &point3, &point4);
-        let triangle3 = Triangle::new(&point4, &point, &point2);
-        let triangle4 = Triangle::new(&point3, &point4, &point);
-
-
-        triangle.fill(&mut buffer, FILL_COLOR);
-        triangle2.fill(&mut buffer, FILL_COLOR2);
-        triangle3.fill(&mut buffer, FILL_COLOR3);
-        triangle4.fill(&mut buffer, FILL_COLOR4);
+        for i in 0..points_len {
+            for j in (i + 1)..points_len {
+                for k in (j + 1)..points_len {
+                    let triangle = Triangle::new(&points[i], &points[j], &points[k]);
+                    triangle.fill(&mut buffer, FILL_COLORS[color_index]);
+                    color_index += 1;
+                }
+            }
+        }
 
         window
             .update_with_buffer(buffer.get_output(), WIDTH, HEIGHT)
