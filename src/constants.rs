@@ -2,10 +2,12 @@ pub const WIDTH: usize = 300;
 pub const HEIGHT: usize = 300;
 pub const DEPTH: usize = 300;
 
-pub const DEFAULT_VELOCITY_X: f32 = 30.0;
-pub const DEFAULT_VELOCITY_Y: f32 = 30.0;
-pub const DEFAULT_VELOCITY_Z: f32 = 30.0;
+pub const MAX_VELOCITY: f32 = 100.0;
+pub const MIN_VELOCITY: f32 = 30.0;
 pub const DEFAULT_SIZE: usize = 10;
+pub const IS_BOUNCE_ENABLED: bool = true;
+
+pub const FPS: f32 = 25.0;
 
 pub const BACKGROUND_COLOR: u32 = 0x4C5454;
 pub const POINT_COLOR: u32 = 0xFF715B;

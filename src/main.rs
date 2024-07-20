@@ -4,11 +4,12 @@ mod constants;
 mod matrix;
 mod point;
 mod triangle;
+mod random;
 
 use buffer::Buffer;
 use constants::*;
 use minifb::{Key, Window, WindowOptions};
-use point::{Point, StaticPoint};
+use point::Point;
 use triangle::Triangle;
 
 fn main() {
@@ -25,43 +26,10 @@ fn main() {
 
     let mut buffer = Buffer::new();
 
-    let static_point = StaticPoint::new();
-    let static_point2 = StaticPoint::new();
-    let static_point3 = StaticPoint::new();
-    let static_point4 = StaticPoint::new();
-
-    let mut point = Point::new(
-        static_point,
-        DEFAULT_SIZE,
-        DEFAULT_VELOCITY_X,
-        DEFAULT_VELOCITY_Y,
-        DEFAULT_VELOCITY_Z,
-        true,
-    );
-    let mut point2 = Point::new(
-        static_point2,
-        DEFAULT_SIZE,
-        -DEFAULT_VELOCITY_X - 20.0,
-        -DEFAULT_VELOCITY_Y - 10.0,
-        -DEFAULT_VELOCITY_Z - 10.0,
-        true,
-    );
-    let mut point3 = Point::new(
-        static_point3,
-        DEFAULT_SIZE,
-        -DEFAULT_VELOCITY_X + 10.0,
-        DEFAULT_VELOCITY_Y - 10.0,
-        DEFAULT_VELOCITY_Z + 15.0,
-        true,
-    );
-    let mut point4 = Point::new(
-        static_point4,
-        DEFAULT_SIZE,
-        DEFAULT_VELOCITY_X + 10.0,
-        -DEFAULT_VELOCITY_Y - 5.0,
-        -DEFAULT_VELOCITY_Z + 5.0,
-        true,
-    );
+    let mut point = Point::new();
+    let mut point2 = Point::new();
+    let mut point3 = Point::new();
+    let mut point4 = Point::new();
 
     while window.is_open() && !window.is_key_down(Key::Escape) {
         buffer.clear();

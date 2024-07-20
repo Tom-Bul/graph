@@ -1,23 +1,25 @@
 use std::sync::Mutex;
-use crate::{
-    buffer::Buffer,
-    constants::{HEIGHT, WIDTH, DEPTH},
-    DEFAULT_SIZE, LINE_COLOR, POINT_COLOR,
-};
+
 use rayon::prelude::*;
 
+use crate::{buffer::Buffer, constants::{DEPTH, HEIGHT, WIDTH}, DEFAULT_SIZE, LINE_COLOR, POINT_COLOR};
+use crate::constants::{FPS, IS_BOUNCE_ENABLED, MAX_VELOCITY, MIN_VELOCITY};
+use crate::random::get_rand_velocity;
 
 pub struct StaticPoint {
     pub position_x: f32,
     pub position_y: f32,
     pub position_z: f32,
 }
-pub struct Point {
-    pub position: StaticPoint,
-    pub size: usize,
+pub struct Velocity {
     velocity_x: f32,
     velocity_y: f32,
     velocity_z: f32,
+}
+pub struct Point {
+    pub position: StaticPoint,
+    pub size: usize,
+    velocity: Velocity,
     bounce: bool,
 }
 
@@ -34,23 +36,27 @@ impl StaticPoint {
         (self.position_x, self.position_y, self.position_z)
     }
 }
+impl Velocity {
+    pub fn new() -> Self {
+        Velocity {
+            velocity_x: get_rand_velocity(MIN_VELOCITY, MAX_VELOCITY),
+            velocity_y: get_rand_velocity(MIN_VELOCITY, MAX_VELOCITY),
+            velocity_z: get_rand_velocity(MIN_VELOCITY, MAX_VELOCITY),
+        }
+    }
+
+    pub fn get(&self) -> (f32, f32, f32) {
+        (self.velocity_x, self.velocity_y, self.velocity_z)
+    }
+}
 
 impl Point {
-    pub fn new(
-        position: StaticPoint,
-        size: usize,
-        velocity_x: f32,
-        velocity_y: f32,
-        velocity_z: f32,
-        bounce: bool,
-    ) -> Point {
+    pub fn new() -> Point {
         Point {
-            position,
-            size,
-            velocity_x,
-            velocity_y,
-            velocity_z,
-            bounce,
+            position: StaticPoint::new(),
+            size: DEFAULT_SIZE,
+            velocity: Velocity::new(),
+            bounce: IS_BOUNCE_ENABLED,
         }
     }
 
@@ -60,10 +66,11 @@ impl Point {
             position_y,
             position_z,
         } = &mut self.position;
+        let (velocity_x, velocity_y, velocity_z) = self.velocity.get();
 
-        *position_x += self.velocity_x * (1.0 / 25.0);
-        *position_y += self.velocity_y * (1.0 / 25.0);
-        *position_z += self.velocity_z * (1.0 / 25.0);
+        *position_x += velocity_x * (1.0 / FPS);
+        *position_y += velocity_y * (1.0 / FPS);
+        *position_z += velocity_z * (1.0 / FPS);
 
         if self.bounce {
             self.border_bounce()
@@ -75,26 +82,22 @@ impl Point {
     }
 
     pub fn border_bounce(&mut self) {
-        let StaticPoint {
-            position_x,
-            position_y,
-            position_z,
-        } = &mut self.position;
+        let (position_x, position_y, position_z) = self.position.get();
 
         fn get_expression(position: f32, dimension: usize, size: usize) -> bool {
             position >= (dimension - size) as f32 || position <= 0.0
         }
 
-        if get_expression(*position_x, WIDTH, self.size) {
-            self.velocity_x = -self.velocity_x;
+        if get_expression(position_x, WIDTH, self.size) {
+            self.velocity.velocity_x = -self.velocity.velocity_x;
         }
 
-        if get_expression(*position_y, HEIGHT, self.size) {
-            self.velocity_y = -self.velocity_y;
+        if get_expression(position_y, HEIGHT, self.size) {
+            self.velocity.velocity_y = -self.velocity.velocity_y;
         }
 
-        if get_expression(*position_z, DEPTH, self.size) {
-            self.velocity_z = -self.velocity_z;
+        if get_expression(position_z, DEPTH, self.size) {
+            self.velocity.velocity_z = -self.velocity.velocity_z;
         }
     }
 
@@ -119,11 +122,7 @@ impl Point {
     }
 
     pub fn draw_point(&self, buffer: &mut Buffer) {
-        let StaticPoint {
-            position_x,
-            position_y,
-            position_z,
-        } = self.position;
+        let (position_x, position_y, position_z) = self.position.get();
 
         let buffer = Mutex::new(buffer);
 

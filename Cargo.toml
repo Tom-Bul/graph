@@ -6,4 +6,5 @@ edition = "2021"
 [dependencies]
 minifb = "0.21.0"
 pkg-config = "0.3.30"
+rand = "0.8.5"
 rayon = "1.10.0"
