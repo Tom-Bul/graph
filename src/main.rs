@@ -36,7 +36,7 @@ fn main() {
         indices.iter().for_each(|&index| {
             let point = &mut points[index];
             point.point_movement();
-            point.draw_point(&mut buffer);
+            // point.draw_point(&mut buffer);
 
             // for &i in &indices[index + 1..] {
             //     Point::draw_line(&points[index], &points[i], &mut buffer);

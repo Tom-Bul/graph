@@ -9,13 +9,11 @@ pub const MAX_SIZE: usize = 15;
 pub const MIN_SIZE: usize = 5;
 pub const DEFAULT_SIZE: usize = 10;
 pub const IS_BOUNCE_ENABLED: bool = true;
-
-pub const FPS: f32 = 25.0;
+pub const FPS: f32 = 30.0;
 
 pub const BACKGROUND_COLOR: u32 = 0x4C5454;
 pub const POINT_COLOR: u32 = 0xFF715B;
 pub const LINE_COLOR: u32 = 0xE9B44C;
-
 pub const FILL_COLORS: [u32; 4] = [
     0x7C3238,
     0xB7245C,

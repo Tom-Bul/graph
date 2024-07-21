@@ -15,35 +15,22 @@ impl<'a> Triangle<'a> {
     }
 
     pub fn fill(&self, buffer: &mut Buffer, color: u32) {
+        let (x1, y1, x2, y2, x3, y3) = (self.p1.position.position_x, self.p1.position.position_y, self.p2.position.position_x, self.p2.position.position_y, self.p3.position.position_x, self.p3.position.position_y);
         let matrix_abc = Matrix::new([
-            [
-                self.p1.position.position_x,
-                self.p1.position.position_y,
-                1.0,
-            ],
-            [
-                self.p2.position.position_x,
-                self.p2.position.position_y,
-                1.0,
-            ],
-            [
-                self.p3.position.position_x,
-                self.p3.position.position_y,
-                1.0,
-            ],
+            [ x1, y1, 1.0, ], [ x2, y2, 1.0, ], [ x3, y3, 1.0, ],
         ])
         .det()
         .unwrap_or(0.0);
 
         let position_y_collection: Vec<usize> = vec![
-            self.p1.position.position_y as usize,
-            self.p2.position.position_y as usize,
-            self.p3.position.position_y as usize,
+            y1 as usize,
+            y2 as usize,
+            y3 as usize,
         ];
         let position_x_collection: Vec<usize> = vec![
-            self.p1.position.position_x as usize,
-            self.p2.position.position_x as usize,
-            self.p3.position.position_x as usize,
+            x1 as usize,
+            x2 as usize,
+            x3 as usize,
         ];
 
         let (upper_bound_y, lower_bound_y, upper_bound_x, lower_bound_x) = (
@@ -63,17 +50,7 @@ impl<'a> Triangle<'a> {
             let (x, y) = (index % WIDTH, index / WIDTH);
 
             let matrix_pbc = match Matrix::new([
-                [x as f32, y as f32, 1.0],
-                [
-                    self.p2.position.position_x,
-                    self.p2.position.position_y,
-                    1.0,
-                ],
-                [
-                    self.p3.position.position_x,
-                    self.p3.position.position_y,
-                    1.0,
-                ],
+                [x as f32, y as f32, 1.0], [ x2, y2, 1.0, ], [ x3, y3, 1.0, ],
             ])
                 .det()
             {
@@ -81,17 +58,7 @@ impl<'a> Triangle<'a> {
                 _ => return,
             };
             let matrix_apc = match Matrix::new([
-                [
-                    self.p1.position.position_x,
-                    self.p1.position.position_y,
-                    1.0,
-                ],
-                [x as f32, y as f32, 1.0],
-                [
-                    self.p3.position.position_x,
-                    self.p3.position.position_y,
-                    1.0,
-                ],
+                [ x1, y1, 1.0, ], [x as f32, y as f32, 1.0], [ x3, y3, 1.0, ],
             ])
                 .det()
             {
@@ -99,17 +66,7 @@ impl<'a> Triangle<'a> {
                 _ => return,
             };
             let matrix_abp = match Matrix::new([
-                [
-                    self.p1.position.position_x,
-                    self.p1.position.position_y,
-                    1.0,
-                ],
-                [
-                    self.p2.position.position_x,
-                    self.p2.position.position_y,
-                    1.0,
-                ],
-                [x as f32, y as f32, 1.0],
+                [ x1, y1, 1.0, ], [ x2, y2, 1.0, ], [x as f32, y as f32, 1.0],
             ])
                 .det()
             {

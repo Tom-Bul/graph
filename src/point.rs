@@ -74,7 +74,6 @@ impl Point {
         points
     }
 
-
     pub fn point_movement(&mut self) {
         let StaticPoint {
             position_x,
